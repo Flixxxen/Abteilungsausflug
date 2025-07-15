@@ -10,15 +10,19 @@
       background: #f0f8ff;
       margin: 0;
       padding: 20px;
-      text-align: center;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
     h1 {
       color: #2c3e50;
+      text-align: center;
     }
     .grid {
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 10px;
+      width: 100%;
       max-width: 600px;
       margin: 0 auto;
     }
@@ -31,6 +35,7 @@
       transition: background 0.3s, color 0.3s;
       font-size: 1rem;
       user-select: none;
+      text-align: center;
     }
     .cell.selected {
       background: #3498db;
@@ -42,6 +47,15 @@
       color: #e74c3c;
       margin-top: 20px;
       animation: fireworks 1s infinite;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+      z-index: 1000;
     }
     @keyframes fireworks {
       0% { opacity: 1; }
@@ -88,13 +102,14 @@
       const checkLine = (indices) => indices.every(i => cells[i].classList.contains("selected"));
 
       for (let i = 0; i < size; i++) {
-        const row = Array.from({ length: 4 }, (_, j) => getIndex(i, j)).map((_, j) => [getIndex(i, j), getIndex(i, j+1), getIndex(i, j+2), getIndex(i, j+3)]);
-        const col = Array.from({ length: 4 }, (_, j) => getIndex(j, i)).map((_, j) => [getIndex(j, i), getIndex(j+1, i), getIndex(j+2, i), getIndex(j+3, i)]);
-        row.concat(col).forEach(indices => {
-          if (checkLine(indices)) {
+        for (let j = 0; j <= size - 4; j++) {
+          const row = [0, 1, 2, 3].map(k => getIndex(i, j + k));
+          const col = [0, 1, 2, 3].map(k => getIndex(j + k, i));
+          if (checkLine(row) || checkLine(col)) {
             showBingo();
+            return;
           }
-        });
+        }
       }
 
       // Diagonals
@@ -104,6 +119,7 @@
           const diag2 = [0, 1, 2, 3].map(k => getIndex(i + k, j + 3 - k));
           if (checkLine(diag1) || checkLine(diag2)) {
             showBingo();
+            return;
           }
         }
       }
