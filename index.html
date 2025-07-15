@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Wanderbingo BLB 2025</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f8ff;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+    h1 {
+      color: #2c3e50;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    .cell {
+      background: #ffffff;
+      border: 2px solid #3498db;
+      border-radius: 10px;
+      padding: 20px;
+      cursor: pointer;
+      transition: background 0.3s, color 0.3s;
+      font-size: 1rem;
+      user-select: none;
+    }
+    .cell.selected {
+      background: #3498db;
+      color: white;
+    }
+    #bingoMessage {
+      display: none;
+      font-size: 2rem;
+      color: #e74c3c;
+      margin-top: 20px;
+      animation: fireworks 1s infinite;
+    }
+    @keyframes fireworks {
+      0% { opacity: 1; }
+      50% { opacity: 0.5; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
+    }
+  </style>
+</head>
+<body>
+  <h1>Wanderbingo BLB 2025</h1>
+  <div class="grid" id="bingoGrid"></div>
+  <div id="bingoMessage">🎉 BINGO! 🎉</div>
+
+  <script>
+    const terms = [
+      "Boot", "Sitzbank", "Boje", "Pommesschranke", "Stauder-Bier",
+      "Inline-Fahrer", "Fahrradfahrer", "Schienen", "Wanderstock", "Kohlewagen vom Bergbau",
+      "Schwan", "Kanu", "Jogger", "E-Bike", "Feldweg",
+      "Wanderkarte", "Eis im Hörnchen", "Motorradfahrer mit Schnäuzer", "Pferd", "Ziege",
+      "Huhn/Hahn", "Zechenturm", "Standup Paddel", "T-Shirt von Stauder", "Currywurst"
+    ];
+
+    const shuffled = terms.sort(() => 0.5 - Math.random()).slice(0, 25);
+    const grid = document.getElementById("bingoGrid");
+    const cells = [];
+
+    shuffled.forEach(term => {
+      const cell = document.createElement("div");
+      cell.className = "cell";
+      cell.textContent = term;
+      cell.addEventListener("click", () => {
+        cell.classList.toggle("selected");
+        checkForBingo();
+      });
+      cells.push(cell);
+      grid.appendChild(cell);
+    });
+
+    function checkForBingo() {
+      const size = 5;
+      const message = document.getElementById("bingoMessage");
+      const getIndex = (row, col) => row * size + col;
+
+      const checkLine = (indices) => indices.every(i => cells[i].classList.contains("selected"));
+
+      for (let i = 0; i < size; i++) {
+        const row = Array.from({ length: 4 }, (_, j) => getIndex(i, j)).map((_, j) => [getIndex(i, j), getIndex(i, j+1), getIndex(i, j+2), getIndex(i, j+3)]);
+        const col = Array.from({ length: 4 }, (_, j) => getIndex(j, i)).map((_, j) => [getIndex(j, i), getIndex(j+1, i), getIndex(j+2, i), getIndex(j+3, i)]);
+        row.concat(col).forEach(indices => {
+          if (checkLine(indices)) {
+            showBingo();
+          }
+        });
+      }
+
+      // Diagonals
+      for (let i = 0; i <= size - 4; i++) {
+        for (let j = 0; j <= size - 4; j++) {
+          const diag1 = [0, 1, 2, 3].map(k => getIndex(i + k, j + k));
+          const diag2 = [0, 1, 2, 3].map(k => getIndex(i + k, j + 3 - k));
+          if (checkLine(diag1) || checkLine(diag2)) {
+            showBingo();
+          }
+        }
+      }
+    }
+
+    function showBingo() {
+      const message = document.getElementById("bingoMessage");
+      message.style.display = "block";
+    }
+  </script>
+</body>
+</html>
